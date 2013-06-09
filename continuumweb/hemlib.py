@@ -33,11 +33,9 @@ def coffee_assets(prefix, host, port, excludes=None):
     ftargets = []
     for path, dirs, files in os.walk(prefix, followlinks=True):
         if path in excludes:
-            print "coffee_assets() skipping", path
             continue
         for f in files:
             fname = os.path.join(path, f)
-            print fname
             ftargets.append(fname)
     #filter out ignores
     ftargets = [f for f in ftargets if not \
@@ -72,3 +70,23 @@ def django_slug_libs(static_root, static_url, libs):
     targets = [os.path.relpath(x, static_root) for x in targets]
     targets = [urlparse.urljoin(static_url, x) for x in targets]
     return targets
+
+def flask_template_context(app, port):
+    if getattr(app, "debugjs", False):
+        slug = slug_json()
+        static_js = slug_libs(app, slug['libs'])
+        cssfiles =  [
+            "http://localhost:%s/css/application.css" % port
+            ]
+        hem_js = all_coffee_assets("localhost", port)
+    else:
+        from flask import url_for
+        static_js = [url_for('static', filename='js/application.js')]
+        cssfiles = [url_for('static', filename='css/application.css')]
+        hem_js = []
+    return dict(static_js=static_js,
+                cssfiles=cssfiles,
+                hem_js=hem_js)
+
+
+    
