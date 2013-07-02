@@ -5,9 +5,15 @@ import urlparse
 import sys
 
 slug_path = None
+slug_file = None
+def hem_port():
+    data = slug_json()
+    return data.get('port', 9294)
 
 def slug_json():
-    path = os.path.join(slug_path, 'slug.json')
+    if slug_file is None:
+        slug_file = "slug.json"
+    path = os.path.join(slug_path, slug_file)
     with open(path) as f:
         return json.load(f)
     return os.path.join(os.path.dirname(__file__))
@@ -17,14 +23,16 @@ def hemprefixes():
     prefixes = [os.path.normpath(x) for x in prefixes]
     return prefixes
 
-def all_coffee_assets(host, port):
+def all_coffee_assets(host, port=None):
+    if port is None: port = hem_port()
     targets = []
     for prefix in hemprefixes():
         targets.extend(coffee_assets(prefix, host, port))
     return targets
                        
 ignores = [".*~", "^#", "^\."]
-def coffee_assets(prefix, host, port, excludes=None):
+def coffee_assets(prefix, host, port=None, excludes=None):
+    if port is None: port = hem_port()    
     #walk coffee tree
     if excludes is None:
         excludes = set()
@@ -43,12 +51,13 @@ def coffee_assets(prefix, host, port, excludes=None):
     
     return make_urls(ftargets, host, port)    
 
-def make_urls(filenames, host, port):
+def make_urls(filenames, host, port=None):
     """ Returns a list of URLs to the given files on the filesystem 
     
     The filenames should be .coffee files, and the returned URLs
     will strip the extension appropriately.
     """
+    if port is None: port = hem_port()
     slugpath = slug_path
     filenames = [os.path.relpath(x, slugpath) for x in filenames]
     
@@ -71,7 +80,8 @@ def django_slug_libs(static_root, static_url, libs):
     targets = [urlparse.urljoin(static_url, x) for x in targets]
     return targets
 
-def flask_template_context(app, port):
+def flask_template_context(app, port=None):
+    if port is None: port = hem_port()    
     if getattr(app, "debugjs", False):
         slug = slug_json()
         static_js = slug_libs(app, slug['libs'])
