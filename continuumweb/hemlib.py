@@ -11,9 +11,8 @@ def hem_port():
     return data.get('port', 9294)
 
 def slug_json():
-    if slug_file is None:
-        slug_file = "slug.json"
-    path = os.path.join(slug_path, slug_file)
+    sfile = slug_file if slug_file else "slug.json"
+    path = os.path.join(slug_path, sfile)
     with open(path) as f:
         return json.load(f)
     return os.path.join(os.path.dirname(__file__))
