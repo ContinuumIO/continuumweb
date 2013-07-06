@@ -29,7 +29,7 @@ def all_coffee_assets(host, port=None):
         targets.extend(coffee_assets(prefix, host, port))
     return targets
                        
-ignores = [".*~", "^#", "^\."]
+ignores = [".*~", "^#", "^\.", "^.*.sw?"]
 def coffee_assets(prefix, host, port=None, excludes=None):
     if port is None: port = hem_port()    
     #walk coffee tree
